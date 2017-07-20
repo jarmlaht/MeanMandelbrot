@@ -15,7 +15,7 @@ var zoom1 = 0.8;
 var zoom2 = 0.5;
 var zoom3 = 0.2;
 var zoom = 1.0;
-var maxIterations = 512;
+var maxIterations = 1000;
 var r_values = new Array(255);
 var g_values = new Array(255);
 var b_values = new Array(255);
@@ -34,8 +34,8 @@ createPalette();
 drawMandelbrotSet();
 
 function drawMandelbrotSet() {
-    console.log("drawMandelbrotSet(): rx = " + rx + ", iy = " + iy);
-    console.log("drawMandelbrotSet(): xstart: " + xstart + "\nystart: " + ystart + "\nxend: " + xend + "\nyend: " + yend + "\nxzoom: " + xzoom + "\nyzoom: " + yzoom);
+    //console.log("drawMandelbrotSet(): rx = " + rx + ", iy = " + iy);
+    //console.log("drawMandelbrotSet(): xstart: " + xstart + "\nystart: " + ystart + "\nxend: " + xend + "\nyend: " + yend + "\nxzoom: " + xzoom + "\nyzoom: " + yzoom);
     drawPalette(255, 0, 0, 255, 255, 0);	
     createPalette();
     maxIterations = document.getElementById("iteration_input").value;
@@ -73,14 +73,21 @@ function drawMandelbrotSet() {
         x: x,
         y: y,
         rx: rx,
-        iy: iy
+        iy: iy,
+        maxIterations: Number(maxIterations),
+        rstart: rstart,
+        gstart: gstart,
+        bstart: bstart,
+        rend: rend,
+        gend: gend,
+        bend: bend
     };
     saveDetailsToMongoDb(details);
     console.log("drawMandelbrotSet(): done!");
 }
 
 function saveDetailsToMongoDb(details) {
-    console.log(details);
+    console.log(JSON.stringify(details));
     // Create a todo in memory
     /*var m = new Mandelbrot({
         xstart: xstart,
@@ -151,7 +158,9 @@ function getCoordinates(event) {
     var iy = ystart + yzoom * y;
     document.getElementById('coordinates').innerHTML = "xstart: " + xstart + "<br>ystart: " + ystart 
     	+ "<br>xend: " + xend + "<br>yend: " + yend + "<br>xzoom: " + xzoom + "<br>yzoom: " + yzoom 
-    	+ "<br>x=" + x + ", y=" + y +  "<br>rx=" + rx + "<br>iy=" + iy;// + "scrolled Y: " + scrolledVal;
+        + "<br>x: " + x + ", y: " + y +  "<br>rx: " + rx + "<br>iy: " + iy;// + "<br>maxIterations: " + maxIterations;
+        //+ "<br>rstart: " + rstart + "<br>gstart: " + gstart + "<br>bstart: " + bstart 
+        //+ "<br>rend: " + rend + "<br>gend: " + gend + "<br>bend: " + bend;
     if (zoomlevel.value == 1) {
         zoomlevel.title = zoom1; 
         zoom = zoom * zoom1;    // * 0.2
@@ -192,26 +201,26 @@ function getPosition(element) {
 
 //http://jqueryui.com/slider/#colorpicker
 function createPalette() { //startColor, endColor) {
-    console.log("createPalette(): " + rstart + ", " + gstart + ", " + bstart);
-    console.log("createPalette(): " + rend + ", " + gend + ", " + bend);
+    //console.log("createPalette(): " + rstart + ", " + gstart + ", " + bstart);
+    //console.log("createPalette(): " + rend + ", " + gend + ", " + bend);
     var r = rstart;
     var g = gstart;
     var b = bstart;
     var length = 255;
     for (i = 0; i < length; i++) {
-    r = ((rend - rstart)/length)*i + rstart;
-    g = ((gend - gstart)/length)*i + gstart;
-    b = ((bend - bstart)/length)*i + bstart;
-    r_values[i] = r;
-    g_values[i] = g;
-    b_values[i] = b;
+        r = ((rend - rstart)/length)*i + rstart;
+        g = ((gend - gstart)/length)*i + gstart;
+        b = ((bend - bstart)/length)*i + bstart;
+        r_values[i] = r;
+        g_values[i] = g;
+        b_values[i] = b;
     }
     drawPalette(rstart, gstart, bstart, rend, gend, bend);
 }
 
 function drawPalette(rs, gs, bs, re, ge, be) {
-    console.log("drawPalette(): " + rs + ", " + gs + ", " + bs + ", " + re + ", " + ge + ", " + be);
-    console.log("rs type: " + typeof rs);
+    //console.log("drawPalette(): " + rs + ", " + gs + ", " + bs + ", " + re + ", " + ge + ", " + be);
+    //console.log("rs type: " + typeof rs);
     var gradientBox = document.getElementById("palette").getContext("2d"); 
     var gradient = gradientBox.createLinearGradient(0,0,200,50);
     var start = hexFromRGB(Number(rs), Number(gs), Number(bs));

@@ -33,8 +33,10 @@ app.set('views', path.join(__dirname, './public/views'));
 app.set('view engine', 'ejs');
 
 // routes ==================================================
-var routes = require('./app/routes');
+var routes = require('./app/index');
+var mandelbrots = require('./app/routes');
 app.use('/', routes);
+app.use('/m', mandelbrots);
 
 app.listen(port);               
 

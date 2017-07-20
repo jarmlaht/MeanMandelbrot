@@ -1,10 +1,25 @@
-<nav class="navbar navbar-inverse"> 
+<nav class="navbar navbar-inverse navbar-fixed-top"> 
     <div class="container-fluid">    
         <div class="navbar-header">        
-            <a href="/" class="navbar-brand">            
+            <a href="#mypage" class="navbar-brand">            
                 <span class="glyphicon glyphicon-picture"></span>            
                 Mean Mandelbrot        
             </a>    
-        </div> 
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="#mypage"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+                <li><a href="#table"><span class="glyphicon glyphicon-th"></span> Images</a></li>
+            </ul>
+        </div>
     </div> 
 </nav>
+<style>
+    .navbar-nav li a:hover {
+        color: #fff;
+    }
+    .navbar-nav li.active a {
+        color: #fff;
+        background-color: #0060FF;
+    }
+</style>

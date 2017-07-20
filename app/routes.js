@@ -6,8 +6,10 @@ var Mandelbrot = require('./models/Mandelbrot.js');
 router.get('/m', function(req, res) {
     // use mongoose to get all nerds in the database
     Mandelbrot.find(function(err, mandelbrots) {
-        if (err)
+        if (err) {
             res.send(err);
+        }
+        console.log(JSON.stringify(mandelbrots));
         res.json(mandelbrots); // return all nerds in JSON format
     });
 });
@@ -44,9 +46,6 @@ router.delete('/m/:id', function(req, res, next) {
   });
 });
 
-router.get('/', function(req, res, next) {
-    res.render('pages/index');
-});
 // route to handle creating goes here (app.post)
 // route to handle delete goes here (app.delete)
 
