@@ -1,11 +1,13 @@
 var express = require('express'); 
-var app = express(); 
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var logger = require('morgan');
 var path = require('path');
-
 var db = require('./config/db');
+
+var routes = require('./app/index');
+var mandelbrots = require('./app/mandelbrots');
+
 var mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 mongoose.connect(db.url, {  
@@ -20,11 +22,10 @@ mongoose.connect(db.url, {
 
 var port = process.env.PORT || 8080;
 
+var app = express(); 
 app.use(logger('combined'));
-app.use(bodyParser.json()); 
-app.use(bodyParser.json({ type: 'application/vnd.api+json' })); 
-app.use(bodyParser.urlencoded({ extended: true })); 
-app.use(methodOverride('X-HTTP-Method-Override')); 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false })); 
 
 // set the static files location /public/img will be /img for users
 app.use(express.static(__dirname + '/public')); 
@@ -33,10 +34,8 @@ app.set('views', path.join(__dirname, './public/views'));
 app.set('view engine', 'ejs');
 
 // routes ==================================================
-var routes = require('./app/index');
-var mandelbrots = require('./app/routes');
 app.use('/', routes);
-//app.use('/m', mandelbrots);
+app.use('/m', mandelbrots);
 
 app.listen(port);               
 
@@ -70,9 +69,6 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
-
-// shoutout to the user                     
-console.log('Magic happens on port ' + port);
 
 // expose app           
 exports = module.exports = app; 

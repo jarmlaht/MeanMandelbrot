@@ -1,21 +1,20 @@
 var express = require('express');
 var router = express.Router();
 var Mandelbrot = require('./models/Mandelbrot.js');
+var mongoose = require('mongoose');
 
 /* GET /mandelbrots listing. */
-router.get('/m', function(req, res) {
-    // use mongoose to get all nerds in the database
+router.get('/', function(req, res, next) {
     Mandelbrot.find(function(err, mandelbrots) {
         if (err) {
             res.send(err);
         }
-        console.log(JSON.stringify(mandelbrots));
-        res.json(mandelbrots); // return all nerds in JSON format
+        res.json(mandelbrots);
     });
 });
 
 /* POST /mandelbrots */
-router.post('/m', function(req, res, next) {
+router.post('/', function(req, res, next) {
   Mandelbrot.create(req.body, function (err, post) {
     if (err) return next(err);
     res.json(post);
@@ -23,7 +22,7 @@ router.post('/m', function(req, res, next) {
 });
 
 /* GET /mandelbrots/id */
-router.get('/m/:id', function(req, res, next) {
+router.get('/:id', function(req, res, next) {
   Mandelbrot.findById(req.params.id, function (err, post) {
     if (err) return next(err);
     res.json(post);
@@ -31,7 +30,7 @@ router.get('/m/:id', function(req, res, next) {
 });
 
 /* PUT /mandelbrots/:id */
-router.put('/m/:id', function(req, res, next) {
+router.put('/:id', function(req, res, next) {
   Mandelbrot.findByIdAndUpdate(req.params.id, req.body, function (err, post) {
     if (err) return next(err);
     res.json(post);
@@ -39,7 +38,7 @@ router.put('/m/:id', function(req, res, next) {
 });
 
 /* DELETE /mandelbrots/:id */
-router.delete('/m/:id', function(req, res, next) {
+router.delete('/:id', function(req, res, next) {
   Mandelbrot.findByIdAndRemove(req.params.id, req.body, function (err, post) {
     if (err) return next(err);
     res.json(post);

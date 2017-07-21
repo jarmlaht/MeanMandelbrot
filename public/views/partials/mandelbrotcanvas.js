@@ -33,6 +33,41 @@ resetValues(ox, oy, radius);
 createPalette();
 drawMandelbrotSet();
 
+function getImageData(w, h) {
+    console.log("Creating 4K image:\n xstart: " + xstart + "\nystart: " + ystart + "\nxend: " + xend + "\nyend: " + yend + "\nxzoom: " + xzoom + "\nyzoom: " + yzoom);
+    drawPalette(255, 0, 0, 255, 255, 0);
+    createPalette();
+    maxIterations = document.getElementById("iteration_input").value;
+    var canvas4k = document.getElementById("4Kcanvas").getContext("2d");
+    var pic = canvas4k.createImageData(w, h);
+    var pos = 0;
+    for (y = 0; y < h; y++) {
+        for (x = 0; x < w; x++) {
+            rx = xstart + xzoom * x;
+            iy = ystart + yzoom * y;
+            c = getIterationCount(rx, iy); // color value
+            pos = x + (w * y);
+            if (c === 256) {
+                pic.data[4*pos] = 0;
+                pic.data[4*pos+1] = 0;
+                pic.data[4*pos+2] = 0;
+                pic.data[4*pos+3] = 255;
+            }
+            else {
+                pic.data[4*pos] = r_values[c];
+                pic.data[4*pos+1] = g_values[c];
+                pic.data[4*pos+2] = b_values[c];
+                pic.data[4*pos+3] = 255;
+            }
+        }
+    }
+    console.log("Creating 4K image: data ok");
+    canvas4k.putImageData(pic, 0, 0);
+    var dataURL = document.getElementById("4Kcanvas").toDataURL();
+    document.getElementById('canvasImg').src = dataURL;
+    console.log("4K image ready!");
+}
+
 function drawMandelbrotSet() {
     //console.log("drawMandelbrotSet(): rx = " + rx + ", iy = " + iy);
     //console.log("drawMandelbrotSet(): xstart: " + xstart + "\nystart: " + ystart + "\nxend: " + xend + "\nyend: " + yend + "\nxzoom: " + xzoom + "\nyzoom: " + yzoom);
