@@ -36,7 +36,7 @@ app.set('view engine', 'ejs');
 var routes = require('./app/index');
 var mandelbrots = require('./app/routes');
 app.use('/', routes);
-app.use('/m', mandelbrots);
+//app.use('/m', mandelbrots);
 
 app.listen(port);               
 

@@ -5,47 +5,18 @@
         <script src="views/partials/client.js"></script>
         <link rel="stylesheet" href="css/style.css">
     </head> 
-    <body ng-app="mean-mandelbrot-app" class="container-fullwidth" id="mypage">
+    <body ng-app="mean-mandelbrot-app" class="container-fullwidth">
         <header>        
             <% include ../partials/header %>    
         </header>
         <main>
-            <% include ../partials/mandelbrot %>
+            <!--<% include ../partials/mandelbrot %>-->
             <!--<% include ../partials/table %>-->
             <div ng-view></div>
         </main>
         <footer>        
             <% include ../partials/footer %>   
         </footer>
-        <script type="text/ng-template" id="/table.html">
-            <div class="container" id="table">
-                <h3>Stored image details</h3>           
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Thumbnail</th>
-                            <th>Upper-left</th>
-                            <th>Lower-right</th>
-                            <th>Max iterations</th>
-                            <th>Color 1</th>
-                            <th>Color 2</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in mandelbrots">
-                            <td></td>
-                            <td>{{ x.xstart + ", " + x.ystart }}</td>
-                            <td>{{ x.xend + ", " + x.yend }}</td>
-                            <td>{{ x.maxIterations }}</td>
-                            <td>{{ x.rstart + ", " + x.gstart + ", " + x.bstart }}</td>
-                            <td>{{ x.rend + ", " + x.gend + ", " + x.bend }}</td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </script>
         <script>
             angular.module("mean-mandelbrot-app", ['ngRoute'])
             // Service
@@ -63,12 +34,15 @@
             }])
             .config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
                 $routeProvider
-                    .when('/m', {
-                    templateUrl: '/table.html',
-                    controller: 'MandelbrotController'
+                    .when('/', {
+                        templateUrl: 'mandelbrot.html',
+                        controller: 'MandelbrotController'
+                    })
+                    .when('/table', {
+                        templateUrl: 'table.html',
+                        controller: 'MandelbrotController'
                     });
-    
-                //$locationProvider.html5Mode(true);
+                    //$locationProvider.html5Mode(true);
             }]);
         </script>
     </body> 
