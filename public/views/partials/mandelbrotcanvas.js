@@ -35,11 +35,20 @@ drawMandelbrotSet();
 
 function getImageData(w, h) {
     console.log("Creating 4K image:\n xstart: " + xstart + "\nystart: " + ystart + "\nxend: " + xend + "\nyend: " + yend + "\nxzoom: " + xzoom + "\nyzoom: " + yzoom);
+    var startTime = (new Date()).getTime();
     drawPalette(255, 0, 0, 255, 255, 0);
     createPalette();
     maxIterations = document.getElementById("iteration_input").value;
     var canvas4k = document.getElementById("4Kcanvas").getContext("2d");
     var pic = canvas4k.createImageData(w, h);
+    //reset4KValues(rx, iy, zoom);
+    radx = (4/3) * (xend - xstart) / 2;
+    xstart = xstart * (4/3);
+    xend = xend * (4/3);
+    xzoom = (xend - xstart) / w;
+    yzoom = (yend - ystart) / h;
+    console.log("getImageData(): rx = " + rx + ", iy = " + iy + ", zoom = " + zoom);
+    console.log("getImageData(): radx = " + radx + ", rady = " + rady + ", xstart = " + xstart + ", ystart = " + ystart + ", xend = " + xend + ", yend = " + yend + ", xzoom = " + xzoom + ", yzoom = " + yzoom);
     var pos = 0;
     for (y = 0; y < h; y++) {
         for (x = 0; x < w; x++) {
@@ -63,9 +72,11 @@ function getImageData(w, h) {
     }
     console.log("Creating 4K image: data ok");
     canvas4k.putImageData(pic, 0, 0);
-    var dataURL = document.getElementById("4Kcanvas").toDataURL();
-    document.getElementById('canvasImg').src = dataURL;
-    console.log("4K image ready!");
+    //var dataURL = document.getElementById("4Kcanvas").toDataURL();
+    //document.getElementById('canvasImg').src = dataURL;
+    //window.location = document.getElementById("4Kcanvas").toDataURL('image/png');
+    var endTime = (new Date()).getTime();
+    console.log("4K image ready in: " + (endTime - startTime) + " ms!");
 }
 
 function drawMandelbrotSet() {
@@ -73,31 +84,58 @@ function drawMandelbrotSet() {
     //console.log("drawMandelbrotSet(): xstart: " + xstart + "\nystart: " + ystart + "\nxend: " + xend + "\nyend: " + yend + "\nxzoom: " + xzoom + "\nyzoom: " + yzoom);
     drawPalette(255, 0, 0, 255, 255, 0);	
     createPalette();
+    var startTime = (new Date()).getTime();
     maxIterations = document.getElementById("iteration_input").value;
     var canvas = document.getElementById("mandelbrotcanvas").getContext("2d");
     var pic = canvas.createImageData(width, height);
     var pos = 0;
-    for (y = 0; y < height; y++) {
+    for (y = 0; y < height; y++) {            
+        iy = ystart + yzoom * y;
         for (x = 0; x < width; x++) {
             rx = xstart + xzoom * x;
-            iy = ystart + yzoom * y;
             c = getIterationCount(rx, iy); // color value
-            pos = x + (width * y);
             if (c === 256) {
-                pic.data[4*pos] = 0;
-                pic.data[4*pos+1] = 0;
-                pic.data[4*pos+2] = 0;
-                pic.data[4*pos+3] = 255;
+                pic.data[pos++] = 0;
+                pic.data[pos++] = 0;
+                pic.data[pos++] = 0;
+                pic.data[pos++] = 255;
             }
             else {
-                pic.data[4*pos] = r_values[c];
-                pic.data[4*pos+1] = g_values[c];
-                pic.data[4*pos+2] = b_values[c];
-                pic.data[4*pos+3] = 255;
+                pic.data[pos++] = r_values[c];
+                pic.data[pos++] = g_values[c];
+                pic.data[pos++] = b_values[c];
+                pic.data[pos++] = 255;
             }
         }
     }  
     canvas.putImageData(pic, 0, 0);
+    var endTime = (new Date()).getTime();
+    console.log("drawMandelbrotSet() done in: " + (endTime - startTime) + " ms!");
+}
+
+function getIterationCount(x, y) {
+    var real = 0.0;
+    var imag = 0.0;
+    var iterations = 0;
+    while(iterations < maxIterations && (real * real + imag * imag <= 4.0)) {
+        mag = real * real - imag * imag;	    // squared magnitude
+        imag = 2.0 * real * imag + y;      	    // iterated value, imaginary part
+        real = mag + x;                         // iterated value, real part
+        iterations++;
+    }
+    
+    if (iterations == maxIterations) {
+        return 256;
+    }
+    else {
+        while (iterations > 255) {
+        iterations = iterations - 256;
+        }
+       return iterations;
+    }
+}
+
+function getDetails() {
     var details = {        
         xstart: xstart,
         ystart: ystart,
@@ -117,50 +155,8 @@ function drawMandelbrotSet() {
         gend: gend,
         bend: bend
     };
-    saveDetailsToMongoDb(details);
-    console.log("drawMandelbrotSet(): done!");
-}
-
-function saveDetailsToMongoDb(details) {
     console.log(JSON.stringify(details));
-    // Create a todo in memory
-    /*var m = new Mandelbrot({
-        xstart: xstart,
-        ystart: ystart,
-        xend: xend,
-        yend: yend,
-        xzoom: xzoom,
-        xzoom: xzoom,
-        x: x,
-        y: y,
-        rx: rx,
-        iy: iy
-    });
-    // Save it to database
-    m.save(function(err){
-    if(err)
-        console.log(err);
-    else
-        console.log(todo);
-    });*/
-}
-
-function getIterationCount(x, y) {
-    var real = 0.0;
-    var imag = 0.0;
-    var mag = 0.0;
-    var iterations = 0;
-    while((iterations < maxIterations) && (mag < 4.0)) {
-        mag = real * real - imag * imag;	    // squared magnitude
-        imag = 2.0 * real * imag + y;      	    // iterated value, imaginary part
-        real = mag + x;                         // iterated value, real part
-        iterations++;
-    }
-    while (iterations > 255) {                  // If maximum iterations is more than 256,
-        //iterations = iterations - 256;		// returned color value will be decreased by 256.
-        return 256;
-    }
-    return iterations;
+    return details;
 }
 
 function resetValues(x, y, r) {
@@ -173,6 +169,20 @@ function resetValues(x, y, r) {
     yend = y - rady;
     xzoom = (xend - xstart) / width;
     yzoom = (yend - ystart) / height;
+    console.log("resetValues(): radx = " + radx + ", rady = " + rady + ", xstart = " + xstart + ", ystart = " + ystart + ", xend = " + xend + ", yend = " + yend + ", xzoom = " + xzoom + ", yzoom = " + yzoom);
+}
+
+function reset4KValues(x, y, r) {
+    console.log("reset4KValues(): x = " + x + ", y = " + y + ", r = " + r);
+    radx = r;
+    rady = (2160/3840) * r;
+    xstart = x - radx;
+    xend = x + radx;
+    ystart = y + rady;
+    yend = y - rady;
+    xzoom = (xend - xstart) / 3840;
+    yzoom = (yend - ystart) / 2160;
+    console.log("reset4KValues(): radx = " + radx + ", rady = " + rady + ", xstart = " + xstart + ", ystart = " + ystart + ", xend = " + xend + ", yend = " + yend + ", xzoom = " + xzoom + ", yzoom = " + yzoom);
 }
 
 function getCoordinates(event) {

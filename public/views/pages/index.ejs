@@ -13,7 +13,6 @@
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.5/angular-resource.min.js"></script>
         <script src="http://code.jquery.com/jquery-1.12.4.js"></script>
         <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.js" integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script> 
-        <script src="views/partials/client.js"></script>
         <link rel="stylesheet" href="css/style.css">
         <script>
             angular.module("mean-mandelbrot-app", ['ngRoute'])
@@ -27,7 +26,16 @@
                 },
                 function err(response) {
                     console.err('error: ' + response);
-                })
+                });
+
+                $scope.save = function(){
+                    console.log("save");
+                    var details = getDetails();
+                    var mandelbrot = new Mandelbrot(details);
+                    mandelbrot.$save(function(){
+                        $scope.mandelbrots.push(mandelbrot);
+                    });
+                }
             }])
             .config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
                 $routeProvider
@@ -93,6 +101,7 @@
                                     <canvas id="palette" width=200 height=60 style="border:1px solid #000000" onClick=""></canvas><br>
                                     <input type="button" id="iterationButton" value="Calculate!" onClick="drawMandelbrotSet();">
                                     <input type="button" id="4KButton" value="4K!" onClick="getImageData(3840, 2160);">
+                                    <button id="saveButton" ng-click="save()">Save to database</button>
                                     <p id="coordinates"></p>
                                     <canvas id='4Kcanvas' width="3840" height="2160"></canvas>
                                     <img id="canvasImg">
