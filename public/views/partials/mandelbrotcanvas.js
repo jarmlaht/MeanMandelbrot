@@ -189,7 +189,7 @@ function getCoordinates(event) {
     //console.log("getCoordinates()");
     var canvas = document.getElementById('mandelbrotcanvas');
     var zoomlevel = document.getElementById('zoom_level');
-    console.log("getCoordinates(): zoom = " + zoomlevel);
+    console.log("getCoordinates(): zoom = " + zoomlevel.value);
     var position = getPosition(canvas);
     //alert("The image is located at: " + position.x + ", " + position.y);
     //var x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - canvas.offsetLeft;
@@ -219,7 +219,7 @@ function getCoordinates(event) {
         zoom = zoom * zoom3;    // * 0.8
     }
     else zoom = zoom1;
-    resetValues(rx, iy, zoom);
+    resetValues(rx, iy, zoom * radius);
     drawMandelbrotSet(rx, iy);
 }
 
