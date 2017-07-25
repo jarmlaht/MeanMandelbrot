@@ -28,6 +28,7 @@ var bend = 0;
 var scrolledVal = 0;
 var rx = 0;
 var iy = 0;
+var detailsTable = [];
 
 resetValues(ox, oy, radius);
 createPalette();
@@ -79,6 +80,47 @@ function getImageData(w, h) {
     console.log("4K image ready in: " + (endTime - startTime) + " ms!");
 }
 
+function drawMandelbrotSetWithDetails(details) {
+    //var mandelbrot = new Mandelbrot(details);
+    xstart = details.xstart;
+    xend = details.xend;
+    ystart = details.ystart;
+    yend = details.yend;
+    xzoom = details.xzoom;
+    yzoom = details.yzoom;
+    console.log("drawMandelbrotSetWithDetails(details): xstart: " + details.xstart + "\nystart: " + details.ystart + "\nxend: " + details.xend + "\nyend: " + details.yend + "\nxzoom: " + details.xzoom + "\nyzoom: " + details.yzoom);
+    console.log("drawMandelbrotSetWithDetails(details): rstart: " + details.rstart + "\ngstart: " + details.gstart + "\nbstart: " + details.bstart + "\nrend: " + details.rend +"\ngend: " + details.gend + "\nbend: " + details.bend);
+    drawPalette(details.rstart, details.gstart, details.bstart, details.rend, details.gend, details.bend);
+    createPalette();
+    var startTime = (new Date()).getTime();
+    maxIterations = mandelbrot.maxIterations;
+    var canvas = document.getElementById("mandelbrotcanvas").getContext("2d");
+    var pic = canvas.createImageData(width, height);
+    var pos = 0;
+    for (y = 0; y < height; y++) {            
+        iy = ystart + yzoom * y;
+        for (x = 0; x < width; x++) {
+            rx = xstart + xzoom * x;
+            c = getIterationCount(rx, iy); // color value
+            if (c === 256) {
+                pic.data[pos++] = 0;
+                pic.data[pos++] = 0;
+                pic.data[pos++] = 0;
+                pic.data[pos++] = 255;
+            }
+            else {
+                pic.data[pos++] = r_values[c];
+                pic.data[pos++] = g_values[c];
+                pic.data[pos++] = b_values[c];
+                pic.data[pos++] = 255;
+            }
+        }
+    }  
+    canvas.putImageData(pic, 0, 0);
+    var endTime = (new Date()).getTime();
+    console.log("drawMandelbrotSetWithDetails(details) done in: " + (endTime - startTime) + " ms!");
+}
+
 function drawMandelbrotSet() {
     //console.log("drawMandelbrotSet(): rx = " + rx + ", iy = " + iy);
     //console.log("drawMandelbrotSet(): xstart: " + xstart + "\nystart: " + ystart + "\nxend: " + xend + "\nyend: " + yend + "\nxzoom: " + xzoom + "\nyzoom: " + yzoom);
@@ -110,7 +152,17 @@ function drawMandelbrotSet() {
     }  
     canvas.putImageData(pic, 0, 0);
     var endTime = (new Date()).getTime();
+    var details = getDetails();
+    detailsTable.push(details);
+    console.log("detailsTable length: " + detailsTable.length);
     console.log("drawMandelbrotSet() done in: " + (endTime - startTime) + " ms!");
+}
+
+function drawPrevious() {
+    detailsTable.pop();
+    var details = detailsTable[detailsTable.length - 1];
+    console.log("drawPrevious: " + details);
+    drawMandelbrotSetWithDetails(details);
 }
 
 function getIterationCount(x, y) {
@@ -232,11 +284,6 @@ function getPosition(element) {
     while(element) {
         offsetX = element.offsetLeft - element.scrollLeft + element.clientLeft;
         offsetY = element.offsetTop - element.scrollTop + element.clientTop;
-        //console.log("element: " + element.toString() + ": X: " + offsetX + ", Y: " + offsetY);
-        //console.log("offsetTop: " + element.offsetTop);
-        //console.log("scrollTop: " + element.scrollTop);
-        //console.log("clientTop: " + element.clientTop);
-        //console.log("scrolledVal: " + scrolledVal);
         xPosition += offsetX;
         yPosition += offsetY;
         element = element.offsetParent;
@@ -275,19 +322,6 @@ function drawPalette(rs, gs, bs, re, ge, be) {
     gradientBox.fillStyle = gradient; 
     gradientBox.fillRect(10, 10, 180, 40); 
 }
-
-/*function getOffset(el) {
-    var x = 0;
-    var y = 0;
-    while(el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
-        x += el.offsetLeft - el.scrollLeft;
-        y += el.offsetTop - el.scrollTop;
-        el = el.offsetParent;
-    }
-    return {top: y, left: x};
-}
-//var x = getOffset( document.getElementById('yourElId') ).left; 
-*/
 
 function hexFromRGB(r, g, b) {
     var hex = [

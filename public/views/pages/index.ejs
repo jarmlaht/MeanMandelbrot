@@ -18,10 +18,10 @@
             angular.module("mean-mandelbrot-app", ['ngRoute', 'ngResource'])
             .factory('Mandelbrots', ['$resource', function($resource){
                 return $resource('/m/:id', null, {
-                    'update': { method:'PUT' }
                 });
             }])
             .controller('MandelbrotController', ['$scope', '$http', 'Mandelbrots', function ($scope, $http, Mandelbrots) {
+                //$scope.mandelbrots = Mandelbrots.query();
                 $http.get('/m')
                 .then(function(result) {
                     $scope.mandelbrots = result.data;
@@ -30,11 +30,22 @@
                     console.err('error: ' + response);
                 });
 
-                $scope.save = function(){
+                $scope.save = function() {
                     var details = getDetails();
                     var mandelbrot = new Mandelbrots(details);
                     mandelbrot.$save(function(){
-                        $scope.mandelbrots.push(mandelbrot);
+                        $scope.mandelbrots.push(mandelbrot); 
+                    });
+                }
+                $scope.redraw = function(index) {
+                    var mandelbrot = $scope.mandelbrots[index];
+                    console.log(mandelbrot);
+
+                }
+                $scope.remove = function(index) {
+                    var mandelbrot = $scope.mandelbrots[index];
+                    Mandelbrots.remove({id: mandelbrot._id}, function() {
+                        $scope.mandelbrots.splice(index, 1);
                     });
                 }
             }])
@@ -85,6 +96,7 @@
                 <div class="row">
                     <div class="col-lg-9">
                         <canvas id='mandelbrotcanvas' width="800" height="600" onClick="getCoordinates(event);" style="border:1px solid #000000"></canvas>
+                        <input type="button" id="previousButton" value="Back" onClick="drawPrevious();">
                     </div>
                     <div class="col-lg-3">
                         <h4>Image settings</h4>
@@ -192,13 +204,13 @@
                     </thead>
                     <tbody>
                         <tr ng-repeat="x in mandelbrots">
-                            <td><img src="thumbnail.png"></td>
+                            <td><a href="#home"><img src="thumbnail.png" ng-click="redraw($index)"></a></td>
                             <td>{{ x.xstart + ", " + x.ystart }}</td>
                             <td>{{ x.xend + ", " + x.yend }}</td>
                             <td>{{ x.maxIterations }}</td>
                             <td><img style="width:50px;height:50px;background-color:blue"></td>
                             <td><img style="width:50px;height:50px;background-color:blue"></td>
-                            <td><span class="glyphicon glyphicon-trash"></span></td>
+                            <td><span class="glyphicon glyphicon-trash" ng-click="remove($index)"></span></td>
                         </tr>
                     </tbody>
                 </table>
